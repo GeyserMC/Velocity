@@ -1,0 +1,45 @@
+name: Sync and publish to opencollab repo
+
+on:
+  schedule:
+    - cron: '1 18 * * *'
+  workflow_dispatch:
+    inputs:
+      sync_test_mode:
+        description: 'Test fork sync config'
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sync upstream changes
+        id: sync
+        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4.1
+        with:
+          target_sync_branch: main
+          target_repo_token: ${{ secrets.GITHUB_TOKEN }}
+          upstream_sync_repo: PaperMC/Velocity
+          upstream_sync_branch: dev/3.0.0
+          test_mode: ${{ inputs.sync_test_mode }}
+      - uses: actions/setup-java@v4
+        if: steps.sync.outputs.has_new_commits == 'true'
+        with:
+          java-version: 17
+          distribution: temurin
+          server-id: opencollab
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+      - name: Setup Gradle
+        if: steps.sync.outputs.has_new_commits == 'true'
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          validate-wrappers: true
+      - name: Publish to Maven Repository
+        if: steps.sync.outputs.has_new_commits == 'true'
+        run: gradle publish
+        env:
+          ORG_GRADLE_PROJECT_geysermcUsername: ${{ vars.DEPLOY_USER }}
+          ORG_GRADLE_PROJECT_geysermcPassword: ${{ secrets.DEPLOY_PASS }}

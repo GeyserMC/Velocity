@@ -8,8 +8,8 @@ extensions.configure<PublishingExtension> {
         maven {
             credentials(PasswordCredentials::class.java)
 
-            name = "paper"
-            val base = "https://repo.papermc.io/repository/maven"
+            name = "geysermc"
+            val base = "https://repo.opencollab.dev/maven"
             val releasesRepoUrl = "$base-releases/"
             val snapshotsRepoUrl = "$base-snapshots/"
             setUrl(if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
