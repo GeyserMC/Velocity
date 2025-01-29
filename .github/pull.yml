@@ -1,0 +1,9 @@
+version: "1"
+rules:
+  - base: main # Target branch
+    upstream: PaperMC:dev/3.0.0 # Must be in the same fork network.
+    mergeMethod: hardreset # Optional, one of [none, merge, squash, rebase, hardreset], Default: none.
+    mergeUnstable: false # merge pull request even when the mergeable_state is not clean. Default: false
+    conflictReviewers: # Optional, on merge conflict assign a reviewer
+      - Tim203
+conflictLabel: "merge-conflict" # Optional, on merge conflict assign a custom label, Default: merge-conflict
