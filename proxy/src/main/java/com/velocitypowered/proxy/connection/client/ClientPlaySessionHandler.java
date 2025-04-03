@@ -113,6 +113,8 @@ public class ClientPlaySessionHandler implements MinecraftSessionHandler {
 
   private CompletableFuture<Void> configSwitchFuture;
 
+  private int failedTabCompleteAttempts;
+
   /**
    * Constructs a client play session handler.
    *
@@ -670,6 +672,17 @@ public class ClientPlaySessionHandler implements MinecraftSessionHandler {
       }
       return false;
     }
+
+    if (!server.getTabCompleteRateLimiter().attempt(player.getUniqueId())) {
+      if (server.getConfiguration().isKickOnTabCompleteRateLimit()
+              && failedTabCompleteAttempts++ >= server.getConfiguration().getKickAfterRateLimitedTabCompletes()) {
+        player.disconnect(Component.translatable("velocity.kick.tab-complete-rate-limit"));
+      }
+
+      return true;
+    }
+
+    failedTabCompleteAttempts = 0;
 
     server.getCommandManager().offerBrigadierSuggestions(player, command)
         .thenAcceptAsync(suggestions -> {
