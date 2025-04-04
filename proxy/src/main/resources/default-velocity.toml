@@ -158,7 +158,7 @@ enable-reuse-port = false
 
 # How fast (in milliseconds) are clients allowed to send commands after the last command
 # By default this is 50ms (20 commands per second)
-command-rate-limit = 25
+command-rate-limit = 50
 
 # Should we forward commands to the backend upon being rate limited?
 # This will forward the command to the server instead of processing it on the proxy.
