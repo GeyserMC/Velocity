@@ -116,6 +116,6 @@ public class HandshakePacket implements MinecraftPacket {
   @Override
   public int expectedMaxLength(ByteBuf buf, ProtocolUtils.Direction direction,
                                ProtocolVersion version) {
-    return 270;
+    return 9 + (MAXIMUM_HOSTNAME_LENGTH * 3);
   }
 }
