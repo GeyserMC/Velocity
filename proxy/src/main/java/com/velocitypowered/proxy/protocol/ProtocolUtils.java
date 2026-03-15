@@ -36,7 +36,9 @@ import io.netty.handler.codec.EncoderException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.BinaryTag;
@@ -863,6 +865,18 @@ public enum ProtocolUtils {
    */
   public static <T> List<T> newList(int initialCapacity) {
     return new ArrayList<>(Math.min(initialCapacity, Short.MAX_VALUE));
+  }
+
+  /**
+   * Returns a pre-sized map with a max initial size of {@code Short.MAX_VALUE}.
+   *
+   * @param initialCapacity expected initial capacity
+   * @param <K> key type
+   * @param <V> value type
+   * @return pre-sized map
+   */
+  public static <K, V> Map<K, V> newMap(int initialCapacity) {
+    return new HashMap<>(Math.min(initialCapacity, Short.MAX_VALUE));
   }
 
   /**
