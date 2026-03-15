@@ -855,7 +855,7 @@ public enum ProtocolUtils {
   }
 
   /**
-   * Returns a pre-sized list with a max initial size of {@code Short.MAX_VALUE}
+   * Returns a pre-sized list with a max initial size of {@code Short.MAX_VALUE}.
    *
    * @param initialCapacity expected initial capacity
    * @param <T> entry type
