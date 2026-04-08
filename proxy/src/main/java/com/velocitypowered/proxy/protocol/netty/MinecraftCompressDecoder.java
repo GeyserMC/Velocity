@@ -50,6 +50,13 @@ public class MinecraftCompressDecoder extends MessageToMessageDecoder<ByteBuf> {
   private int threshold;
   private final VelocityCompressor compressor;
 
+  /**
+   * Creates a new {@code MinecraftCompressDecoder} with the specified compression {@code threshold}.
+   *
+   * @param threshold the threshold for compression. Packets with uncompressed size below this threshold will not be compressed.
+   * @param compressor the compressor instance to use
+   * @param direction the direction of the packets being decoded
+   */
   public MinecraftCompressDecoder(int threshold, VelocityCompressor compressor, ProtocolUtils.Direction direction) {
     this.threshold = threshold;
     this.compressor = compressor;
