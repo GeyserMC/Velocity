@@ -33,20 +33,26 @@ import java.util.List;
  */
 public class MinecraftCompressDecoder extends MessageToMessageDecoder<ByteBuf> {
 
+  private static final int SERVERBOUND_MAXIMUM_UNCOMPRESSED_SIZE = 2 * 1024 * 1024; // 2MiB
   private static final int VANILLA_MAXIMUM_UNCOMPRESSED_SIZE = 8 * 1024 * 1024; // 8MiB
   private static final int HARD_MAXIMUM_UNCOMPRESSED_SIZE = 128 * 1024 * 1024; // 128MiB
 
-  private static final int UNCOMPRESSED_CAP =
+  private static final int CLIENTBOUND_UNCOMPRESSED_CAP =
       Boolean.getBoolean("velocity.increased-compression-cap")
           ? HARD_MAXIMUM_UNCOMPRESSED_SIZE : VANILLA_MAXIMUM_UNCOMPRESSED_SIZE;
+  private static final int SERVERBOUND_UNCOMPRESSED_CAP =
+          Boolean.getBoolean("velocity.increased-compression-cap")
+                  ? HARD_MAXIMUM_UNCOMPRESSED_SIZE : SERVERBOUND_MAXIMUM_UNCOMPRESSED_SIZE;
   private static final boolean SKIP_COMPRESSION_VALIDATION = Boolean.getBoolean("velocity.skip-uncompressed-packet-size-validation");
+  private final ProtocolUtils.Direction direction;
 
   private int threshold;
   private final VelocityCompressor compressor;
 
-  public MinecraftCompressDecoder(int threshold, VelocityCompressor compressor) {
+  public MinecraftCompressDecoder(int threshold, VelocityCompressor compressor, ProtocolUtils.Direction direction) {
     this.threshold = threshold;
     this.compressor = compressor;
+    this.direction = direction;
   }
 
   @Override
@@ -65,10 +71,15 @@ public class MinecraftCompressDecoder extends MessageToMessageDecoder<ByteBuf> {
 
     checkFrame(claimedUncompressedSize >= threshold, "Uncompressed size %s is less than"
         + " threshold %s", claimedUncompressedSize, threshold);
-    checkFrame(claimedUncompressedSize <= UNCOMPRESSED_CAP,
-        "Uncompressed size %s exceeds hard threshold of %s", claimedUncompressedSize,
-        UNCOMPRESSED_CAP);
-
+    if (direction == ProtocolUtils.Direction.CLIENTBOUND) {
+      checkFrame(claimedUncompressedSize <= CLIENTBOUND_UNCOMPRESSED_CAP,
+              "Uncompressed size %s exceeds hard threshold of %s", claimedUncompressedSize,
+              CLIENTBOUND_UNCOMPRESSED_CAP);
+    } else {
+      checkFrame(claimedUncompressedSize <= SERVERBOUND_UNCOMPRESSED_CAP,
+              "Uncompressed size %s exceeds hard threshold of %s", claimedUncompressedSize,
+              SERVERBOUND_UNCOMPRESSED_CAP);
+    }
     ByteBuf compatibleIn = ensureCompatible(ctx.alloc(), compressor, in);
     ByteBuf uncompressed = preferredBuffer(ctx.alloc(), compressor, claimedUncompressedSize);
     try {
