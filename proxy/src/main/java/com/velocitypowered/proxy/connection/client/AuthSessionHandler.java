@@ -237,7 +237,7 @@ public class AuthSessionHandler implements MinecraftSessionHandler {
         success.setProperties(player.getGameProfileProperties());
         success.setUuid(player.getUniqueId());
         if (inbound.getProtocolVersion().noLessThan(ProtocolVersion.MINECRAFT_26_2)) {
-          success.setSessionId(UUID.randomUUID()); // use random uuid for now
+          success.setSessionId(server.getSessionId());
         }
         mcConnection.write(success);
 
